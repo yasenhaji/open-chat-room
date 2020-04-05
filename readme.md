@@ -2,7 +2,7 @@
 
 Open chat room is a multiple chat room application based on : **NextJs**, **ExpressJs**, **MongooDB**, **Immer**, **WS**(webSocket), **Material-ui**
 
-![Open new chat room](/screenshots/open_room.png "Open new chat room")![Join chat room](/screenshots/join_room.png "Join chat room")![Chat room](/screenshots/chat_room.png "Chat room")
+![Open new chat room](https://github.com/yasenhaji/open-chat-room/blob/master/screenshots/open_room.png "Open new chat room")![Join chat room](https://github.com/yasenhaji/open-chat-room/blob/master/screenshots/join_room.png "Join chat room")![Chat room](https://github.com/yasenhaji/open-chat-room/blob/master/screenshots/chat_room.PNG "Chat room")
 
 ## Getting started
 
