@@ -68,10 +68,17 @@ app.prepare().then(() => {
 })
 
 // ----------- Web Socket Server --------------------
+
+const fs = require('fs');
+const https = require('https');
 const WebSocket = require('ws');
 
-const wss = new WebSocket.Server({ port: parseInt(process.env.WSS_PORT, 10) || 5001 });
+const server = https.createServer({
+  cert: fs.readFileSync(process.env.SSL_CERT),
+  key: fs.readFileSync(process.env.SSL_KEY)
+});
 
+const wss = new WebSocket.Server({server});
 const uniqid = require('uniqid');
 
 const connections = {};
@@ -132,3 +139,6 @@ wss.on('connection', (ws, req) => {
       value: history[roomId]
     }))
 });
+
+
+server.listen(parseInt(process.env.WSS_PORT, 10) || 5001);

@@ -74,7 +74,7 @@ const Room = ({room, name, port, wssPort, wssHost, classes}) => {
         }, []
     );
 
-    const send = useSocket(`ws://${wssHost}:${wssPort}/${room._id}`, (message) => {
+    const send = useSocket(`wss://${wssHost}:${wssPort}/${room._id}`, (message) => {
         switch(message.type) {
             case "PATCHE":
                 dispatch({
