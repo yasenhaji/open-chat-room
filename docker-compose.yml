@@ -1,0 +1,21 @@
+
+version: '3'
+services: 
+    node:
+        image: jonbaldie/yarn
+        volumes:
+            - .:/app
+        ports:
+            - 3000:3000
+            - 5001:5001
+        restart: always
+    mongo:
+        image: mongo
+        restart: always
+        volumes:
+            - /data/mongo:/data/db
+        ports:
+            - 27017:27017
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: '${MONGO_USERNAME}'
+            MONGO_INITDB_ROOT_PASSWORD: '${MONGO_PASSWORD}'
