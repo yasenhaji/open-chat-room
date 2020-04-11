@@ -2,13 +2,16 @@
 version: '3'
 services: 
     node:
-        image: jonbaldie/yarn
+        image: node:10.16.0
         volumes:
-            - .:/app
+            - ./:/home/node/app
         ports:
             - 3000:3000
             - 5001:5001
-        restart: always
+        command: "npm install"
+        expose:
+            - "3000"
+            - "5001"
     mongo:
         image: mongo
         restart: always
