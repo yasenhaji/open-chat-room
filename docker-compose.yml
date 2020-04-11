@@ -9,7 +9,7 @@ services:
         ports:
             - 3000:3000
             - 5001:5001
-        command: "yarn install"
+        command: bash -c "yarn install && yarn build && yarn start"
         expose:
             - "3000"
             - "5001"
