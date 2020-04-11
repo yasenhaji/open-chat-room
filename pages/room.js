@@ -13,7 +13,15 @@ const style = {
         height: "100vh",
         fontFamily: "Roboto, arial, sans-serif",
         display: "flex",
-        position: "relative"
+        position: "relative",
+        ['@media (max-width:780px)']: {
+            width: "calc(100% + 200px)",
+            transform: "translateX(-200px)",
+            transition: "transform 0.2s linear",
+            "&.show": {
+                transform: "translateX(0)"
+            }
+        }
     },
     linkToShare: {
         display: "flex",
@@ -23,8 +31,8 @@ const style = {
         borderRadius: "5px",
         position: "absolute",
         top: "-40px",
-        left: "50%",
-        transform: "translateX(-50%)",
+        right: "10px",
+        maxWidth: "100vh",
         backgroundColor: "#F3E5F5",
         color: "#4527A0",
         zIndex: 10,
@@ -48,8 +56,11 @@ const style = {
         },
         "& .icon-close": {
             marginLeft: "10px" 
+        },
+        ['@media (max-width:780px)']: {
+            maxWidth: "calc(100% - 240px)"
         }
-    }
+    },
 };
 
 const initialState = {
@@ -57,10 +68,11 @@ const initialState = {
     connectedUsers: {}
 }
 
-const Room = ({room, name, port, wssPort, wssHost, classes}) => {
+const Room = ({room, name, webBaseUrl, socketBaseUrl, classes}) => {
 
     const [state, setState] = useState(initialState);
     const [showLink, setShowLink] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
     const {messages, connectedUsers} = state;
 
     const dispatch = useCallback(action => {
@@ -74,7 +86,7 @@ const Room = ({room, name, port, wssPort, wssHost, classes}) => {
         }, []
     );
 
-    const send = useSocket(`wss://${wssHost}:${wssPort}/${room._id}`, (message) => {
+    const send = useSocket(`${socketBaseUrl}/${room._id}`, (message) => {
         switch(message.type) {
             case "PATCHE":
                 dispatch({
@@ -112,28 +124,28 @@ const Room = ({room, name, port, wssPort, wssHost, classes}) => {
     });
 
     return (
-        <div className={classes.root}>
+        <div className={`${classes.root} ${showMenu? 'show':''}`}>
             <div className={`${classes.linkToShare} ${showLink ? 'show': ''}`}>
-                {`https://${wssHost}/room/${room._id}`}
+                {room._id}
                 <button onClick={() => {
                     setShowLink(false)
                 }}>
                     <CancelRoundedIcon className="icon icon-close"/>
                 </button>
             </div>
-            <SideBar subject={room.subject} connectedUsers={connectedUsers} onShowShareLink={() => setShowLink(true)} />
-            <ChatBox messages={messages} subject={room.subject} onAddMessage={handleAddMessage} />
+            <SideBar showMenu={showMenu} subject={room.subject} connectedUsers={connectedUsers} />
+            <ChatBox messages={messages} subject={room.subject} onShowMenu={() => setShowMenu(!showMenu)} onAddMessage={handleAddMessage} onShowShareLink={() => {if (showMenu) {setShowMenu(false);} setShowLink(true)} } />
         </div>
     )
 }
 
 Room.getInitialProps = async ({query}) => {
 
-    const { roomId, name, port, wssPort, wssHost } = query;
+    const { roomId, name, webBaseUrl, socketBaseUrl } = query;
 
-    const response = await axios.get(`https://${wssHost}/api/rooms/${roomId}`)
+    const response = await axios.get(`${webBaseUrl}/api/rooms/${roomId}`);
     
-    return { room: response.data, name, port, wssPort, wssHost };
+    return { room: response.data, name, webBaseUrl, socketBaseUrl };
 }
 
 export default withStyles(style)(Room);

@@ -41,12 +41,12 @@ app.prepare().then(() => {
 
   server.get('/room/:id/:name', (req, res) => {
     const {id, name} = req.params;
+    const withPort = process.env.PORT && parseInt(process.env.PORT, 10) !== 80;
     return app.render(req, res, '/room', {
-      roomId: id, 
+      roomId: id,
       name,
-      port: parseInt(process.env.PORT, 10) || 80,
-      wssPort: parseInt(process.env.WSS_PORT, 10) || 5001,
-      wssHost: process.env.WSS_HOST || "localhost"
+      webBaseUrl: `${process.env.SECURE == 'true' ? 'https': 'http'}://${process.env.HOST || "localhost"}${withPort ? ':'+parseInt(process.env.PORT, 10) || 80 : ''}`,
+      socketBaseUrl: `${process.env.SECURE == 'true' ? 'wss': 'ws'}://${process.env.HOST || "localhost"}:${parseInt(process.env.WSS_PORT, 10) || 5001 }`
     });
   })
 
@@ -63,7 +63,7 @@ app.prepare().then(() => {
 
   server.listen(port, err => {
     if (err) throw err
-    console.log(`> Ready on https://localhost:${port}`)
+    console.log(`> Ready on http://localhost:${port}`)
   })
 })
 
@@ -72,13 +72,19 @@ app.prepare().then(() => {
 const fs = require('fs');
 const https = require('https');
 const WebSocket = require('ws');
+const wssPort = parseInt(process.env.WSS_PORT, 10) || 5001;
+let wss = null;
+if (process.env.SECURE == 'true') {
+  const server = https.createServer({
+    cert: fs.readFileSync(process.env.SSL_CERT),
+    key: fs.readFileSync(process.env.SSL_KEY)
+  });
+  wss = new WebSocket.Server({server});
+  server.listen(wssPort);
+} else {
+  wss = new WebSocket.Server({port: wssPort});
+}
 
-const server = https.createServer({
-  cert: fs.readFileSync(process.env.SSL_CERT),
-  key: fs.readFileSync(process.env.SSL_KEY)
-});
-
-const wss = new WebSocket.Server({server});
 const uniqid = require('uniqid');
 
 const connections = {};
@@ -139,6 +145,3 @@ wss.on('connection', (ws, req) => {
       value: history[roomId]
     }))
 });
-
-
-server.listen(parseInt(process.env.WSS_PORT, 10) || 5001);

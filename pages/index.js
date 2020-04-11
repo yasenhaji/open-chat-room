@@ -36,6 +36,10 @@ const Index = ({classes, roomId }) => {
 
     return (
         <div className={classes.root}>
+            <Head>
+                <title>Open Chat Room</title>
+                <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+            </Head>
             <h3 className={classes.title}>
                 OpenChat
             </h3>
