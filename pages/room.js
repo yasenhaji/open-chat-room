@@ -114,7 +114,7 @@ const Room = ({room, name, port, wssPort, wssHost, classes}) => {
     return (
         <div className={classes.root}>
             <div className={`${classes.linkToShare} ${showLink ? 'show': ''}`}>
-                {`http://${wssHost}/room/${room._id}`}
+                {`https://${wssHost}/room/${room._id}`}
                 <button onClick={() => {
                     setShowLink(false)
                 }}>
@@ -131,9 +131,8 @@ Room.getInitialProps = async ({query}) => {
 
     const { roomId, name, port, wssPort, wssHost } = query;
 
-    const response = await axios.get(`http://localhost:3000/api/rooms/${roomId}`)
+    const response = await axios.get(`https://${wssHost}/api/rooms/${roomId}`)
     
-
     return { room: response.data, name, port, wssPort, wssHost };
 }
 
