@@ -9,6 +9,7 @@ services:
         ports:
             - 3000:3000
             - 5001:5001
+        restart: always
         command: bash -c "yarn install && yarn build && yarn start"
         expose:
             - "3000"
@@ -18,12 +19,8 @@ services:
         restart: always
         volumes:
             - /data/mongo:/data/db
-            - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
         ports:
             - 27017:27017
         environment:
             MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
             MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-            MONGO_INITDB_USERNAME: $MONGO_USERNAME
-            MONGO_INITDB_PASSWORD_FILE: MONGO_PASSWORD
-            MONGO_INITDB_DATABASE: $MONGO_DB
