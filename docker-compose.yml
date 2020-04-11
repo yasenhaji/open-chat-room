@@ -6,6 +6,8 @@ services:
         working_dir: /home/node/app
         volumes:
             - ./:/home/node/app
+            - ${SSL_CERT}:${SSL_CERT}
+            - ${SSL_KEY}:${SSL_KEY}
         ports:
             - 3000:3000
             - 5001:5001
