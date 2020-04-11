@@ -114,7 +114,7 @@ const Room = ({room, name, port, wssPort, wssHost, classes}) => {
     return (
         <div className={classes.root}>
             <div className={`${classes.linkToShare} ${showLink ? 'show': ''}`}>
-                {`http://${wssHost}${port !== 80 ? `:${port}` : ''}/room/${room._id}`}
+                {`http://${wssHost}/room/${room._id}`}
                 <button onClick={() => {
                     setShowLink(false)
                 }}>
