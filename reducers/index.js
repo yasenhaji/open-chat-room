@@ -28,6 +28,11 @@ export const patchesGeneratingOpenChatReducer = produceWithPatches((draft, actio
         case 'REMOVE_USER':
             delete draft.connectedUsers[action.id];
             break;
+        case 'CONNECTED_USERS':
+            action.users.forEach(user => {
+                draft.connectedUsers[user.id] = user;
+            });
+            break;
         case 'APPLY_PATCHES':
             return applyPatches(draft, action.patches);
     }

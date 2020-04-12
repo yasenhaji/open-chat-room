@@ -68,7 +68,7 @@ const initialState = {
     connectedUsers: {}
 }
 
-const Room = ({room, name, webBaseUrl, socketBaseUrl, classes}) => {
+const Room = ({room, name, socketBaseUrl, classes}) => {
 
     const [state, setState] = useState(initialState);
     const [showLink, setShowLink] = useState(false);
@@ -78,7 +78,7 @@ const Room = ({room, name, webBaseUrl, socketBaseUrl, classes}) => {
     const dispatch = useCallback(action => {
             setState(currentState => {
                 const [nextState, patches] = patchesGeneratingOpenChatReducer(currentState, action);
-                if (action.type !== 'APPLY_PATCHES') {
+                if (action.type === 'ADD_MESSAGE') {
                     send(patches);
                 }
                 return nextState;
@@ -86,7 +86,7 @@ const Room = ({room, name, webBaseUrl, socketBaseUrl, classes}) => {
         }, []
     );
 
-    const send = useSocket(`${socketBaseUrl}/${room._id}`, (message) => {
+    const send = useSocket(`${socketBaseUrl}?roomId=${room._id}&name=${name}`, (message) => {
         switch(message.type) {
             case "PATCHE":
                 dispatch({
@@ -97,8 +97,14 @@ const Room = ({room, name, webBaseUrl, socketBaseUrl, classes}) => {
             case "OPEN":
                 dispatch({
                     type: 'ADD_USER',
-                    id: message.value,
-                    name
+                    id: message.id,
+                    name: message.name
+                });
+                break;
+            case "CONNECTED_USERS":
+                dispatch({
+                    type: "CONNECTED_USERS",
+                    users: message.users
                 });
                 break;
             case "CLOSE":
@@ -145,7 +151,7 @@ Room.getInitialProps = async ({query}) => {
 
     const response = await axios.get(`${webBaseUrl}/api/rooms/${roomId}`);
     
-    return { room: response.data, name, webBaseUrl, socketBaseUrl };
+    return { room: response.data, name, socketBaseUrl };
 }
 
 export default withStyles(style)(Room);
