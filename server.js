@@ -73,6 +73,7 @@ const fs = require('fs');
 const https = require('https');
 const WebSocket = require('ws');
 const wssPort = parseInt(process.env.WSS_PORT, 10) || 5001;
+const qs = require('qs');
 let wss = null;
 if (process.env.SECURE == 'true') {
   const server = https.createServer({
@@ -91,13 +92,23 @@ const connections = {};
 
 let history = {};
 
+const sendMessage = (message, connections) => {
+  connections.forEach(client => client.ws.send(
+    JSON.stringify(message)
+  ));
+}
+
 wss.on('connection', (ws, req) => {
 
-    const roomId = req.url.replace('/', '');
+    const queryString = qs.parse(req.url.replace(/\/|\?/g, ''));
+
+    const {roomId, name} = queryString;
 
     const uid = uniqid();
     connections[uid] = {
+      id: uid,
       roomId,
+      name,
       ws
     };
 
@@ -105,12 +116,15 @@ wss.on('connection', (ws, req) => {
       history[roomId] = [];
     }
 
-    ws.send(JSON.stringify(
-      {
-        type: "OPEN",
-        value: uid
-      }
-    ))
+    sendMessage(
+      {type: "OPEN", id: uid,name},
+      Object.values(connections).filter(client => client.roomId === roomId && client.ws !== ws)
+    );
+
+    ws.send(JSON.stringify({
+      type: "CONNECTED_USERS",
+      users: Object.values(connections).filter(client => client.roomId === roomId)
+    }));
 
     ws.on('message', message => {
         const parsedMessage = JSON.parse(message);
@@ -127,17 +141,11 @@ wss.on('connection', (ws, req) => {
 
     ws.on('close', () => {
         delete connections[uid];
-        if (Object.keys(connections).length > 0) {
-          connections[Object.keys(connections)[0]]
-          .ws.send(JSON.stringify(
-            {
-              type: "CLOSE",
-              value: uid
-            }
-          ))
-        } else {
-          history[roomId] = [];
-        }
+
+        sendMessage(
+          {type: "CLOSE", value: uid},
+          Object.values(connections).filter(client => client.roomId === roomId)
+        );
     })
 
     ws.send(JSON.stringify({
