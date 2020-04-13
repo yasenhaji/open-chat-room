@@ -15,8 +15,14 @@ class MyDocument extends Document {
             <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:200,300,400,500,700,900&display=swap" />
             <style>
                 {   `
+                    html, body {
+                      height: 100%;
+                    }
                     body {
                         margin: 0;
+                    }
+                    #__next {
+                      height: 100%;
                     }
                     `
                 }
