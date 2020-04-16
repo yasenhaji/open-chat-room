@@ -8,6 +8,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 const style = {
     chatbox: {
         height: "100%",
+        width: "calc(100% - 200px)",
+        overflowWrap: "break-word",
         flex: "1",
         position: "relative",
         display: "flex",
@@ -17,7 +19,6 @@ const style = {
         }
     },
     header: {
-        position: 'fixed',
         height: '60px',
         backgroundColor: '#FFF',
         width: "100%",

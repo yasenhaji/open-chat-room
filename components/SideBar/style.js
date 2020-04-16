@@ -1,6 +1,7 @@
 export default {
     sidebar: {
         width: "200px",
+        minWidth: "200px",
         height: "100%",
         backgroundColor: "#7B1FA2",
     },
