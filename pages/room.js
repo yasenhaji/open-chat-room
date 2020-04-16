@@ -18,8 +18,10 @@ const style = {
             width: "calc(100% + 200px)",
             transform: "translateX(-200px)",
             transition: "transform 0.2s linear",
+            overflow: "hidden",
             "&.show": {
-                transform: "translateX(0)"
+                transform: "translateX(0)",
+                width: "100%",
             }
         }
     },

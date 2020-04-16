@@ -7,7 +7,6 @@ const style = {
         display: "flex",
         flexFlow: "column nowrap",
         overflowY: "auto",
-        paddingTop: "60px",
         scrollbarColor: "#7B1FA2",
         "&::-webkit-scrollbar-track": {
             borderRadius: "8px",
