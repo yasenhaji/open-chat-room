@@ -1,16 +1,15 @@
 import {withStyles} from '@material-ui/styles';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import axios from 'axios';
 import SideBar from '../components/SideBar';
 import ChatBox from '../components/ChatBox';
 import { patchesGeneratingOpenChatReducer } from '../reducers';
-import useSocket from '../hooks/useSocket'; 
-import FileCopyIcon from '@material-ui/icons/FileCopy';
+import useSocket from '../hooks/useSocket';
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 
 const style = {
     root: {
-        height: "100vh",
+        height: "100%",
         fontFamily: "Roboto, arial, sans-serif",
         display: "flex",
         position: "relative",
@@ -75,6 +74,7 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
     const [state, setState] = useState(initialState);
     const [showLink, setShowLink] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const {messages, connectedUsers} = state;
 
     const dispatch = useCallback(action => {
@@ -131,8 +131,12 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
         });
     });
 
+    useEffect(() => {
+        setMounted(true);
+    }, [room]);
+
     return (
-        <div className={`${classes.root} ${showMenu? 'show':''}`}>
+        <div className={`${classes.root} ${showMenu? 'show':''}`} >
             <div className={`${classes.linkToShare} ${showLink ? 'show': ''}`}>
                 {room._id}
                 <button onClick={() => {
