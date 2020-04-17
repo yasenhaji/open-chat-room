@@ -1,6 +1,7 @@
 import {withStyles} from '@material-ui/styles';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import {Howl} from 'howler';
 import SideBar from '../components/SideBar';
 import ChatBox from '../components/ChatBox';
 import { patchesGeneratingOpenChatReducer } from '../reducers';
@@ -74,8 +75,10 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
     const [state, setState] = useState(initialState);
     const [showLink, setShowLink] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
-    const [mounted, setMounted] = useState(false);
+    const [toBeNotified, setToBeNotified] = useState(false);
     const {messages, connectedUsers} = state;
+
+    let sound = useRef();
 
     const dispatch = useCallback(action => {
             setState(currentState => {
@@ -95,6 +98,9 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
                     type: "APPLY_PATCHES",
                     patches: message.value
                 });
+                if (document.hidden) {
+                    sound.current && sound.current.play();
+                }
                 break;
             case "OPEN":
                 dispatch({
@@ -132,8 +138,14 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
     });
 
     useEffect(() => {
-        setMounted(true);
-    }, [room]);
+        if (toBeNotified && !sound.current) {
+            sound.current = new Howl({
+                src: ['/audio/open-chat-notif.mp3']
+            });
+        } else {
+            sound.current = null;
+        }
+    }, [toBeNotified]);
 
     return (
         <div className={`${classes.root} ${showMenu? 'show':''}`} >
@@ -146,7 +158,7 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
                 </button>
             </div>
             <SideBar showMenu={showMenu} subject={room.subject} connectedUsers={connectedUsers} />
-            <ChatBox messages={messages} subject={room.subject} onShowMenu={() => setShowMenu(!showMenu)} onAddMessage={handleAddMessage} onShowShareLink={() => {if (showMenu) {setShowMenu(false);} setShowLink(true)} } />
+            <ChatBox toBeNotified={toBeNotified} onSetToBeNotified={setToBeNotified} messages={messages} subject={room.subject} onShowMenu={() => setShowMenu(!showMenu)} onAddMessage={handleAddMessage} onShowShareLink={() => {if (showMenu) {setShowMenu(false);} setShowLink(true)} } />
         </div>
     )
 }
