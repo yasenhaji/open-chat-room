@@ -39,21 +39,13 @@ app.prepare().then(() => {
     });
   })
 
-  server.get('/room/:id/:name', (req, res) => {
-    const {id, name} = req.params;
+  server.get('/room/:id/', (req, res) => {
+    const {id} = req.params;
     const withPort = process.env.PORT && parseInt(process.env.PORT, 10) !== 80;
     return app.render(req, res, '/room', {
       roomId: id,
-      name,
       webBaseUrl: `${process.env.SECURE == 'true' ? 'https': 'http'}://${process.env.HOST || "localhost"}${withPort ? ':'+parseInt(process.env.PORT, 10) || 80 : ''}`,
       socketBaseUrl: `${process.env.SECURE == 'true' ? 'wss': 'ws'}://${process.env.HOST || "localhost"}:${parseInt(process.env.WSS_PORT, 10) || 5001 }`
-    });
-  })
-
-  server.get('/room/:id/', (req, res) => {
-    const {id} = req.params;
-    return app.render(req, res, '/', {
-      roomId: id
     });
   })
 

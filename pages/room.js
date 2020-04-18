@@ -1,10 +1,13 @@
 import {withStyles} from '@material-ui/styles';
 import { useCallback, useState, useEffect } from 'react';
+import Router from 'next/router';
 import axios from 'axios';
 import SideBar from '../components/SideBar';
 import ChatBox from '../components/ChatBox';
 import { patchesGeneratingOpenChatReducer } from '../reducers';
 import useSocket from '../hooks/useSocket';
+import useLocalStorage from '../hooks/useLocalStorage';
+import { USERNAME_KEY } from '../constants';
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 
 const style = {
@@ -69,13 +72,27 @@ const initialState = {
     connectedUsers: {}
 }
 
-const Room = ({room, name, socketBaseUrl, classes}) => {
+const Room = ({room, socketBaseUrl, classes}) => {
 
     const [state, setState] = useState(initialState);
+    const [mounted, setMounted] = useState(false);
     const [showLink, setShowLink] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
-    const [mounted, setMounted] = useState(false);
+    const [name, setName] = useLocalStorage(USERNAME_KEY, '');
     const {messages, connectedUsers} = state;
+
+    useEffect(() => {
+        if (name === '' && mounted) {
+            Router.push({
+                pathname: '/',
+                query: { roomId: room._id },
+            })
+        }
+    }, [name]);
+
+    useEffect(() => {
+        setMounted(true);
+    });
 
     const dispatch = useCallback(action => {
             setState(currentState => {
@@ -131,10 +148,6 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
         });
     });
 
-    useEffect(() => {
-        setMounted(true);
-    }, [room]);
-
     return (
         <div className={`${classes.root} ${showMenu? 'show':''}`} >
             <div className={`${classes.linkToShare} ${showLink ? 'show': ''}`}>
@@ -152,12 +165,11 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
 }
 
 Room.getInitialProps = async ({query}) => {
-
-    const { roomId, name, webBaseUrl, socketBaseUrl } = query;
+    const { roomId, webBaseUrl, socketBaseUrl } = query;
 
     const response = await axios.get(`${webBaseUrl}/api/rooms/${roomId}`);
     
-    return { room: response.data, name, socketBaseUrl };
+    return { room: response.data, socketBaseUrl };
 }
 
 export default withStyles(style)(Room);
