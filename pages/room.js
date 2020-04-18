@@ -1,12 +1,15 @@
 import {withStyles} from '@material-ui/styles';
 import { useCallback, useState, useEffect, useRef } from 'react';
+import Head from 'next/head';
 import axios from 'axios';
 import {Howl} from 'howler';
 import SideBar from '../components/SideBar';
 import ChatBox from '../components/ChatBox';
 import { patchesGeneratingOpenChatReducer } from '../reducers';
 import useSocket from '../hooks/useSocket';
+import useLocalStorage from '../hooks/useLocalStorage';
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
+import useInterval from '../hooks/useInterval';
 
 const style = {
     root: {
@@ -75,21 +78,47 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
     const [state, setState] = useState(initialState);
     const [showLink, setShowLink] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
-    const [toBeNotified, setToBeNotified] = useState(false);
+    const [thereIsNewMessages, setThereIsNewMessages] = useState(false);
+    const [pageIsVisible, setPageIsVisible] = useState(true);
+    const [toBeNotified, setToBeNotified] = useLocalStorage(`openchat_toBeNotified_${room._id}`, false);
     const {messages, connectedUsers} = state;
+    /** Updating page title when new messages */
+    const [startSetInterval, stopSetInterval] = useInterval(() => {
+        setThereIsNewMessages(!thereIsNewMessages)
+    }, 1000);
 
+    /** notification sound */
     let sound = useRef();
 
+    /** componentDidMount register page visiblity listeners */
+    useEffect(() => {
+        if (window !== undefined) {
+            window.addEventListener('focus', setPageVisibility, false);
+            window.addEventListener('blur', setPageVisibility, false);
+            return () => {
+                window.removeEventListener('focus', setPageVisibility);
+                window.removeEventListener('blur', setPageVisibility);
+            }
+        }
+    }, []);
+
+    /** Stop changing page title when page is visible */
+    useEffect(() => {
+        if (pageIsVisible) {
+            stopSetInterval();
+            setThereIsNewMessages(() => false);
+        }
+    }, [pageIsVisible]);
+
     const dispatch = useCallback(action => {
-            setState(currentState => {
-                const [nextState, patches] = patchesGeneratingOpenChatReducer(currentState, action);
-                if (action.type === 'ADD_MESSAGE') {
-                    send(patches);
-                }
-                return nextState;
-            })
-        }, []
-    );
+        setState(currentState => {
+            const [nextState, patches] = patchesGeneratingOpenChatReducer(currentState, action);
+            if (action.type === 'ADD_MESSAGE') {
+                send(patches);
+            }
+            return nextState;
+        })
+    }, []);
 
     const send = useSocket(`${socketBaseUrl}?roomId=${room._id}&name=${name}`, (message) => {
         switch(message.type) {
@@ -98,9 +127,7 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
                     type: "APPLY_PATCHES",
                     patches: message.value
                 });
-                if (document.hidden) {
-                    sound.current && sound.current.play();
-                }
+                handleNotify();
                 break;
             case "OPEN":
                 dispatch({
@@ -137,18 +164,42 @@ const Room = ({room, name, socketBaseUrl, classes}) => {
         });
     });
 
-    useEffect(() => {
-        if (toBeNotified && !sound.current) {
-            sound.current = new Howl({
-                src: ['/audio/open-chat-notif.mp3']
-            });
+    const handleNotify = () => {
+        if (!pageIsVisible) {
+            toBeNotified && sound.current && sound.current.play();
+            startSetInterval();
         } else {
-            sound.current = null;
+            stopSetInterval();
+            setThereIsNewMessages(() => false);
         }
-    }, [toBeNotified]);
+    };
+
+    const setPageVisibility = useCallback(() => {
+        if (document.hasFocus()) {
+            setPageIsVisible(true);
+        } else {
+            setPageIsVisible(false);
+            if (!sound.current) {
+                sound.current = new Howl({
+                    src: ['/audio/open-chat-notif.mp3']
+                });
+            }
+        }
+    }, []);
+
+    
 
     return (
         <div className={`${classes.root} ${showMenu? 'show':''}`} >
+            <Head>
+                <title>
+                    {
+                        thereIsNewMessages ?
+                        'New messages':
+                        'Open Chat Room'
+                    }
+                </title>
+            </Head>
             <div className={`${classes.linkToShare} ${showLink ? 'show': ''}`}>
                 {room._id}
                 <button onClick={() => {

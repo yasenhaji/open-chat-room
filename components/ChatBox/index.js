@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { withStyles } from '@material-ui/styles';
 import Messages from './Messages';
 import ChatInput from './ChatInput';
@@ -50,7 +50,7 @@ const style = {
     }
 }
 
-const ChatBox = ({classes, messages, subject, onAddMessage, onShowShareLink, onShowMenu, toBeNotified, onSetToBeNotified}) => {
+const ChatBox = ({classes, messages, subject, onAddMessage, onShowShareLink, onShowMenu, toBeNotified, onSetToBeNotified}) => {    
     return (
         <div className={classes.chatbox}>
             <div className={classes.header}>
