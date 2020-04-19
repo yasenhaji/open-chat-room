@@ -82,8 +82,6 @@ const uniqid = require('uniqid');
 
 const connections = {};
 
-let history = {};
-
 const sendMessage = (message, connections) => {
   connections.forEach(client => client.ws.send(
     JSON.stringify(message)
@@ -94,40 +92,48 @@ wss.on('connection', (ws, req) => {
 
     const queryString = qs.parse(req.url.replace(/\/|\?/g, ''));
 
-    const {roomId, name} = queryString;
+    const {roomId} = queryString;
 
     const uid = uniqid();
     connections[uid] = {
       id: uid,
       roomId,
-      name,
       ws
     };
 
-    if (!history[roomId]) {
-      history[roomId] = [];
-    }
-
-    sendMessage(
-      {type: "OPEN", id: uid,name},
-      Object.values(connections).filter(client => client.roomId === roomId && client.ws !== ws)
-    );
+    // sendMessage(
+    //   {type: "OPEN", id: uid},
+    //   Object.values(connections).filter(client => client.roomId === roomId && client.ws !== ws)
+    // );
 
     ws.send(JSON.stringify({
       type: "CONNECTED_USERS",
       users: Object.values(connections).filter(client => client.roomId === roomId)
     }));
 
+    ws.send(JSON.stringify({
+      type: "CURRENT_USER",
+      value: uid
+    }));
+
     ws.on('message', message => {
-        const parsedMessage = JSON.parse(message);
-        history[roomId].push(...parsedMessage);
+      const parsedMessage = JSON.parse(message);
+        if (parsedMessage.type === 'ADD_USER' || parsedMessage.type === 'SET_NAME') {
+          connections[uid].name = parsedMessage.name;
+          sendMessage(
+              {
+                type: "CONNECTED_USERS",
+                users: Object.values(connections).filter(client => client.roomId === roomId)
+              },
+              Object.values(connections).filter(client => client.roomId === roomId)
+          );
+          return;
+        }
+        
         Object.values(connections)
         .filter(client => client.roomId === roomId && client.ws !== ws)
         .forEach(client => client.ws.send(
-          JSON.stringify({
-            type: "PATCHE",
-            value: parsedMessage
-          })
+          message
         ))
     })
 
@@ -139,9 +145,4 @@ wss.on('connection', (ws, req) => {
           Object.values(connections).filter(client => client.roomId === roomId)
         );
     })
-
-    ws.send(JSON.stringify({
-      type: "PATCHE",
-      value: history[roomId]
-    }))
 });

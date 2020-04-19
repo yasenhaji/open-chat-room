@@ -14,6 +14,7 @@
   "dependencies": {
     "@material-ui/core": "^4.9.8",
     "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.50",
     "@material-ui/styles": "^4.9.6",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",

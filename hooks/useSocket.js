@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 
-export default function useSocket(url, onMessage) {
+export default function useSocket(url, onMessage, onFail) {
     const socket = useRef();
     const msgHandler = useRef();
     msgHandler.current = onMessage;
@@ -20,7 +20,13 @@ export default function useSocket(url, onMessage) {
 
     return useCallback(
         (data) => {
-            socket.current.send(JSON.stringify(data))
+            try {
+                socket.current.send(JSON.stringify(data))
+            } catch(e) {
+                console.error(e);
+                onFail && onFail();
+            }
+            
         }, []
     );
 }
