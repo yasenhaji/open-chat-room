@@ -28,7 +28,7 @@ const style = {
 const Message = ({classes, message}) => {
     return (
         <div className={classes.message}>
-            <h6>{message.sender}<span>{moment(message.datetime).format('H:mm')}</span></h6>
+            <h6>{message.sender.name}<span>{moment(message.datetime).format('H:mm')}</span></h6>
             <p>
                 {message.message}
             </p>

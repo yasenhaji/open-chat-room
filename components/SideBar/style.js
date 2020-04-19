@@ -42,10 +42,40 @@ export default {
         listStyle: "none",
         textTransform: "uppercase",
         color: "#E0E0E0",
+        "& form": {
+            display: 'flex'
+        },
+        "& button": {
+            padding: 0,
+            backgroundColor: "transparent",
+            border: "0",
+            cursor: "pointer",
+            marginLeft: "30px",
+            outline: "none",
+            "& svg": {
+                color: "#FFF",
+            }
+        },
+        "& input": {
+            width: "80%",
+            height: "15px",
+            padding: "5px",
+            border: "none",
+            outline: "none",
+            borderRadius: "5px"
+        },
         "& svg": {
             fontSize: "16px",
             marginRight: "5px",
             color: "#4DB6AC"
         },
+        "&>span": {
+            marginRight: "10px",
+            display: "flex",
+            alignItems: "center"
+        },
+        "& .MuiSkeleton-root": {
+            backgroundColor: "rgba(255, 255, 255, 0.1)"
+        }
     },
 }

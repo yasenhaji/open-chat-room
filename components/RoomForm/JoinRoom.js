@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import Router from 'next/router';
 import { withStyles } from '@material-ui/styles';
 import Style from './style';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import { USERNAME_KEY } from '../../constants';
 
 const JoinRoom = ({classes, onChangeShow, roomId: roomIdFromProps}) => {
 
     const [roomId, setRoomId] = useState(roomIdFromProps || "");
-    const [name, setName] = useState("");
+    const [username, setUsername] = useLocalStorage(USERNAME_KEY, '');
 
     const handleSubmitForm = (e) => {
         e.preventDefault();
-        const url = `/room/${roomId}/${name}`;
+        const url = `/room/${roomId}`;
         Router.push(url);
     };
 
@@ -24,7 +26,7 @@ const JoinRoom = ({classes, onChangeShow, roomId: roomIdFromProps}) => {
                 </div>
                 <div className={classes.formGroup}>
                     <label className={classes.inputLabel}>Name</label>
-                    <input name='name' value={name} onChange={(e) => setName(e.target.value)} className={classes.formInput} placeholder="Name"/>
+                    <input name='name' value={username} onChange={(e) => setUsername(e.target.value)} className={classes.formInput} placeholder="Name"/>
                 </div>
                 <div className={classes.formOptions}>
                     <a className={classes.formLink} href="#" onClick={(e) => {e.preventDefault(); onChangeShow("OPEN")}}>Open new room</a>

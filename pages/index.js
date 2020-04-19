@@ -26,7 +26,7 @@ const style = {
 
 const Index = ({classes, roomId }) => {
     const [state, setState] = useState({
-        view: "OPEN"
+        view: "JOIN"
     });
     const { view } = state;
 
