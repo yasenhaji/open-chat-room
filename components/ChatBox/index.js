@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { withStyles } from '@material-ui/styles';
 import Messages from './Messages';
 import ChatInput from './ChatInput';
 import ScreenShareRoundedIcon from '@material-ui/icons/ScreenShareRounded';
+import NotificationsOffRoundedIcon from '@material-ui/icons/NotificationsOffRounded';
+import NotificationsActiveRoundedIcon from '@material-ui/icons/NotificationsActiveRounded';
 import MenuIcon from '@material-ui/icons/Menu';
 
 const style = {
@@ -48,7 +50,7 @@ const style = {
     }
 }
 
-const ChatBox = ({classes, messages, subject, onAddMessage, onShowShareLink, onShowMenu}) => {
+const ChatBox = ({classes, messages, subject, onAddMessage, onShowShareLink, onShowMenu, toBeNotified, onSetToBeNotified}) => {    
     return (
         <div className={classes.chatbox}>
             <div className={classes.header}>
@@ -57,6 +59,13 @@ const ChatBox = ({classes, messages, subject, onAddMessage, onShowShareLink, onS
                 </div>
                 # {subject}
                 <ScreenShareRoundedIcon title="Share room" className="share-icon" onClick={onShowShareLink} />
+                <a onClick={() => {onSetToBeNotified(!toBeNotified)}}>
+                    {
+                        toBeNotified ?
+                        <NotificationsActiveRoundedIcon />:
+                        <NotificationsOffRoundedIcon />
+                    }
+                </a>
             </div>
             <Messages messages={messages} />
             <ChatInput subject={subject} onAddMessage={onAddMessage} />

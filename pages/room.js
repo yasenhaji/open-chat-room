@@ -1,14 +1,17 @@
 import {withStyles} from '@material-ui/styles';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import Router from 'next/router';
+import Head from 'next/head';
 import axios from 'axios';
+import {Howl} from 'howler';
 import SideBar from '../components/SideBar';
 import ChatBox from '../components/ChatBox';
-import { patchesGeneratingOpenChatReducer, openChatReducer } from '../reducers';
+import { openChatReducer } from '../reducers';
 import useSocket from '../hooks/useSocket';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { USERNAME_KEY } from '../constants';
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
+import useInterval from '../hooks/useInterval';
 
 const style = {
     root: {
@@ -80,7 +83,17 @@ const Room = ({room, socketBaseUrl, classes}) => {
     const [showLink, setShowLink] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [name, setName] = useLocalStorage(USERNAME_KEY, '');
+    const [thereIsNewMessages, setThereIsNewMessages] = useState(false);
+    const [pageIsVisible, setPageIsVisible] = useState(true);
+    const [toBeNotified, setToBeNotified] = useLocalStorage(`openchat_toBeNotified_${room._id}`, false);
     const {messages, connectedUsers, currentUser} = state;
+    /** Updating page title when new messages */
+    const [startSetInterval, stopSetInterval] = useInterval(() => {
+        setThereIsNewMessages(!thereIsNewMessages)
+    }, 1000);
+
+    /** notification sound */
+    let sound = useRef();
 
     useEffect(() => {
         if (name === '' && mounted) {
@@ -101,6 +114,25 @@ const Room = ({room, socketBaseUrl, classes}) => {
             })
         }, []
     );
+    /** componentDidMount register page visiblity listeners */
+    useEffect(() => {
+        if (window !== undefined) {
+            window.addEventListener('focus', setPageVisibility, false);
+            window.addEventListener('blur', setPageVisibility, false);
+            return () => {
+                window.removeEventListener('focus', setPageVisibility);
+                window.removeEventListener('blur', setPageVisibility);
+            }
+        }
+    }, []);
+
+    /** Stop changing page title when page is visible */
+    useEffect(() => {
+        if (pageIsVisible) {
+            stopSetInterval();
+            setThereIsNewMessages(() => false);
+        }
+    }, [pageIsVisible]);
 
     const send = useSocket(`${socketBaseUrl}?roomId=${room._id}`, (message) => {
         switch(message.type) {
@@ -142,6 +174,7 @@ const Room = ({room, socketBaseUrl, classes}) => {
                     type: 'ADD_MESSAGE',
                     message: message.value
                 });
+                handleNotify();
                 break;
             case "SET_NAME":
                 dispatch({
@@ -184,9 +217,42 @@ const Room = ({room, socketBaseUrl, classes}) => {
         dispatch(action);
         send(action);
     });
+    const handleNotify = () => {
+        if (!pageIsVisible) {
+            toBeNotified && sound.current && sound.current.play();
+            startSetInterval();
+        } else {
+            stopSetInterval();
+            setThereIsNewMessages(() => false);
+        }
+    };
+
+    const setPageVisibility = useCallback(() => {
+        if (document.hasFocus()) {
+            setPageIsVisible(true);
+        } else {
+            setPageIsVisible(false);
+            if (!sound.current) {
+                sound.current = new Howl({
+                    src: ['/audio/open-chat-notif.mp3']
+                });
+            }
+        }
+    }, []);
+
+    
 
     return (
         <div className={`${classes.root} ${showMenu? 'show':''}`} >
+            <Head>
+                <title>
+                    {
+                        thereIsNewMessages ?
+                        'New messages':
+                        'Open Chat Room'
+                    }
+                </title>
+            </Head>
             <div className={`${classes.linkToShare} ${showLink ? 'show': ''}`}>
                 {room._id}
                 <button onClick={() => {
@@ -196,7 +262,7 @@ const Room = ({room, socketBaseUrl, classes}) => {
                 </button>
             </div>
             <SideBar name={name} onSetName={handleSetName} connectedUsers={connectedUsers} currentUser={currentUser} />
-            <ChatBox messages={messages} subject={room.subject} onShowMenu={() => setShowMenu(!showMenu)} onAddMessage={handleAddMessage} onShowShareLink={() => {if (showMenu) {setShowMenu(false);} setShowLink(true)} } />
+            <ChatBox toBeNotified={toBeNotified} onSetToBeNotified={setToBeNotified} messages={messages} subject={room.subject} onShowMenu={() => setShowMenu(!showMenu)} onAddMessage={handleAddMessage} onShowShareLink={() => {if (showMenu) {setShowMenu(false);} setShowLink(true)} } />
         </div>
     )
 }
