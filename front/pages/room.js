@@ -239,7 +239,6 @@ const Room = ({room, socketBaseUrl, classes}) => {
             }
         }
     }, []);
-
     
 
     return (
@@ -268,11 +267,11 @@ const Room = ({room, socketBaseUrl, classes}) => {
 }
 
 Room.getInitialProps = async ({query}) => {
-    const { roomId, webBaseUrl, socketBaseUrl } = query;
+    const { roomId } = query;
 
-    const response = await axios.get(`${webBaseUrl}/api/rooms/${roomId}`);
+    const response = await axios.get(`${process.env.API_BASE_URL}/rooms/${roomId}`);
     
-    return { room: response.data, socketBaseUrl };
+    return { room: response.data, socketBaseUrl: process.env.WSS_BASE_URL };
 }
 
 export default withStyles(style)(Room);

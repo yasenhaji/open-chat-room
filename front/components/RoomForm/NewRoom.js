@@ -1,12 +1,42 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 import { withStyles } from '@material-ui/styles';
 import Style from './style';
 
 const NewRoom = ({classes, onChangeShow}) => {
+
+    const formRef = useRef();
+    const router = useRouter();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formdata = new FormData(formRef.current)
+        const params = new URLSearchParams();
+        for (const [key, value] of formdata.entries()) {
+            params.append(key, value);
+        }
+        try {
+            const response = await axios.post(
+                `${process.env.API_BASE_URL}/rooms`, 
+                params,
+                {
+                    headers: {
+                        'Content-type': 'application/x-www-form-urlencoded'
+                    }
+                }
+            );
+            const room = response.data;
+            router.push(`/room/${room._id}`);
+        } catch (e) {
+            alert('Something is going wrong, try again !');
+        }
+    }
+
     return (
         <div className={classes.paper}>
             <h6 className={classes.title}>New room</h6>
-            <form action='/api/rooms' method='post' className={classes.form}>
+            <form ref={formRef} onSubmit={handleSubmit} className={classes.form}>
                 <div className={classes.formGroup}>
                     <label className={'label-input'}>Subject</label>
                     <input name='subject' className={classes.formInput} placeholder="Subject"/>
