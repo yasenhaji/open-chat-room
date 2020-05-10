@@ -1,0 +1,18 @@
+{
+  "name": "openchat-wss",
+  "version": "0.0.1",
+  "description": "openchat web socket server",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
+    "qs": "^6.9.3",
+    "uniqid": "^5.2.0",
+    "ws": "^7.2.3"
+  },
+  "scripts": {
+    "start": "node -r esm server.js",
+    "dev": "nodemon -r esm server.js"
+  }
+}

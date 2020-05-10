@@ -6,27 +6,77 @@ Open chat room is a multiple chat room application based on : **NextJs**, **Expr
 
 ## Getting started
 
-### Installation
+### API
+`cd ./api`
+#### Installation
 `yarn install`
 or
 `npm install`
-### Configuration
+#### Configuration
+Set your environment settings into *.env* file at the root of the project :
+
+    DB_CONNECTION_URL="mongodb://localhost:27017/openchat"
+    PORT=3001
+    MONGO_USERNAME=test
+    MONGO_PASSWORD=test
+
+#### Run for development
+`yarn dev`
+or
+`npm run dev`
+#### Run for production
+`yarn start`
+or
+`npm run start`
+
+
+### WebSocket Server
+`cd ./wss`
+#### Installation
+`yarn install`
+or
+`npm install`
+#### Configuration
+Set your environment settings into *.env* file at the root of the project :
+
+    SSL_CERT=test_path
+    SSL_KEY=test_path
+    SECURE=false
+    PORT=5001
+
+#### Run for development
+`yarn dev`
+or
+`npm run dev`
+#### Run for production
+`yarn start`
+or
+`npm run start`
+
+
+
+### FRONT
+`cd ./front`
+#### Installation
+`yarn install`
+or
+`npm install`
+#### Configuration
 Set your environment settings into *.env* file at the root of the project :
 
     PORT=3000
-    WSS_HOST=localhost
-    WSS_PORT=5001
-    DB_CONNECTION_URL="mongodb://localhost:27017/openchat"
+    API_BASE_URL=http://localhost:3001
+    WSS_BASE_URL=ws://localhost:5001
 
-### Run for development
+#### Run for development
 `yarn dev`
-of
+or
 `npm run dev`
-### Build for production
+#### Build for production
 `yarn build`
-of
+or
 `npm run build`
-### Run for production
+#### Run for production
 `yarn start`
-of
+or
 `npm run start`

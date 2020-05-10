@@ -1,0 +1,18 @@
+{
+  "name": "openchat-api",
+  "version": "0.0.1",
+  "description": "Open chat API",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node -r esm server.js",
+    "dev": "nodemon -r esm server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.9"
+  }
+}

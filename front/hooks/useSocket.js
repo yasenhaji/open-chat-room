@@ -16,7 +16,7 @@ export default function useSocket(url, onMessage, onFail) {
         return () => {
             createdWebSocket.close();
         }
-    }, [url])
+    }, [url]);
 
     return useCallback(
         (data) => {

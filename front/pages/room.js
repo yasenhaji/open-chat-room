@@ -77,7 +77,6 @@ const initialState = {
 }
 
 const Room = ({room, socketBaseUrl, classes}) => {
-
     const [state, setState] = useState(initialState);
     const [mounted, setMounted] = useState(false);
     const [showLink, setShowLink] = useState(false);
@@ -99,7 +98,7 @@ const Room = ({room, socketBaseUrl, classes}) => {
         if (name === '' && mounted) {
             Router.push({
                 pathname: '/',
-                query: { roomId: room._id },
+                query: { roomId: room.slug },
             })
         }
     }, [name, mounted]);
@@ -239,7 +238,6 @@ const Room = ({room, socketBaseUrl, classes}) => {
             }
         }
     }, []);
-
     
 
     return (
@@ -254,7 +252,7 @@ const Room = ({room, socketBaseUrl, classes}) => {
                 </title>
             </Head>
             <div className={`${classes.linkToShare} ${showLink ? 'show': ''}`}>
-                {room._id}
+                {room.slug}
                 <button onClick={() => {
                     setShowLink(false)
                 }}>
@@ -268,11 +266,11 @@ const Room = ({room, socketBaseUrl, classes}) => {
 }
 
 Room.getInitialProps = async ({query}) => {
-    const { roomId, webBaseUrl, socketBaseUrl } = query;
+    const { slug } = query;
 
-    const response = await axios.get(`${webBaseUrl}/api/rooms/${roomId}`);
+    const response = await axios.get(`${process.env.API_BASE_URL}/rooms/${slug}`);
     
-    return { room: response.data, socketBaseUrl };
+    return { room: response.data, socketBaseUrl: process.env.WSS_BASE_URL };
 }
 
 export default withStyles(style)(Room);
