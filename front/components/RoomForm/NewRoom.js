@@ -27,7 +27,7 @@ const NewRoom = ({classes, onChangeShow}) => {
                 }
             );
             const room = response.data;
-            router.push(`/room/${room._id}`);
+            router.push(`/room/${room.slug}`);
         } catch (e) {
             alert('Something is going wrong, try again !');
         }
@@ -40,10 +40,6 @@ const NewRoom = ({classes, onChangeShow}) => {
                 <div className={classes.formGroup}>
                     <label className={'label-input'}>Subject</label>
                     <input name='subject' className={classes.formInput} placeholder="Subject"/>
-                </div>
-                <div className={classes.formGroup}>
-                    <label className={classes.inputLabel}>Name</label>
-                    <input name='name' className={classes.formInput} placeholder="Name"/>
                 </div>
                 <div className={classes.formGroup}>
                     <label className={classes.inputLabel}>Email</label>

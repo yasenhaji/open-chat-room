@@ -14,6 +14,10 @@ class RoomRepository {
   findById(id, callback) {
     Room.findById(id, callback);
   }
+
+  findBySlug(slug, callback) {
+    Room.findOne({slug}, callback);
+  }
 }
 
 export default new RoomRepository(Room);

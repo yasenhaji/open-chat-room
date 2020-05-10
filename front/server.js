@@ -13,10 +13,10 @@ app.prepare().then(() => {
   server.use(express.json())
   server.use(express.urlencoded({ extended: true }))
 
-  server.get('/room/:id/', (req, res) => {
-    const {id} = req.params;
+  server.get('/room/:slug/', (req, res) => {
+    const {slug} = req.params;
     return app.render(req, res, '/room', {
-      roomId: id
+      slug
     });
   });
 

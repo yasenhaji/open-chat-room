@@ -1,10 +1,10 @@
 import RoomRepository from '../models/repositories/RoomRepository';
+import IdGenerator from '../services/IdGenerator';
 
 function createRoom(req, res) {
-    console.log(req.body);
-    const {subject, name, email} = req.body;
-
-  RoomRepository.create({subject, name, email})
+    const {subject, email} = req.body;
+    const slug = IdGenerator.generate();
+    RoomRepository.create({subject, email, slug})
     .then((room) => {
         res.json(room);
     })
@@ -16,7 +16,7 @@ function createRoom(req, res) {
 }
 
 function getRoom(req, res) {
-    RoomRepository.findById(req.params.id, (err, room) => {
+    RoomRepository.findBySlug(req.params.slug, (err, room) => {
         if (err) {
             res.status(500).json({
                 err
