@@ -9,7 +9,7 @@
     "esm": "^3.2.25",
     "qs": "^6.9.3",
     "uniqid": "^5.2.0",
-    "ws": "^7.2.3"
+    "ws": "^7.4.6"
   },
   "scripts": {
     "start": "node -r esm server.js",
